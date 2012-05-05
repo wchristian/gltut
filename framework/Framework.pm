@@ -21,10 +21,68 @@ use OpenGL qw(
   GLUT_DEBUG
   glutInitContextProfile
   glutInitContextFlags
+  GL_COMPILE_STATUS
+  GL_FALSE
+  glGetShaderiv_p
+  glGetShaderInfoLog_p
+  GL_LINK_STATUS
+  glCreateShaderObjectARB
+  glShaderSourceARB_p
+  glCompileShaderARB
+  glCreateProgramObjectARB
+  glAttachShader
+  glLinkProgramARB
+  glGetProgramivARB_p
+  glGetInfoLogARB_p
+  glDetachObjectARB
 );
 use version 0.77;
+use File::Slurp 'read_file';
 
 use Moo::Role;
+
+sub LoadShader {
+    my ( $self, $eShaderType, $strShaderFilename ) = @_;
+
+    my $strShaderFile = read_file( "data/$strShaderFilename" );
+
+    my $shader = glCreateShaderObjectARB( $eShaderType );
+
+=head1 insufficient documentation
+    glShaderSourceARB_c
+=cut
+
+    glShaderSourceARB_p( $shader, $strShaderFile );
+    glCompileShaderARB( $shader );
+
+    my $status = glGetShaderiv_p( $shader, GL_COMPILE_STATUS );
+    if ( $status == GL_FALSE ) {
+        my $stat = glGetShaderInfoLog_p( $shader );
+        die "Shader compile log: $stat" if $stat;
+    }
+
+    return $shader;
+}
+
+sub CreateProgram {
+    my ( $self, @shaderList ) = @_;
+
+    my $program = glCreateProgramObjectARB();
+
+    glAttachShader( $program, $_ ) for @shaderList;
+
+    glLinkProgramARB( $program );
+
+    my $status = glGetProgramivARB_p( $program, GL_LINK_STATUS );
+    if ( $status == GL_FALSE ) {
+        my $stat = glGetInfoLogARB_p( $program );
+        die "Shader link log: $stat" if $stat;
+    }
+
+    glDetachObjectARB( $program, $_ ) for @shaderList;
+
+    return $program;
+}
 
 sub main {
     my ( $self ) = @_;
