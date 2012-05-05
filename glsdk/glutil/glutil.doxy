@@ -1,0 +1,76 @@
+/**
+\defgroup module_glutil GL Util
+
+The OpenGL Utility Library (GL Util) is a collection of miscellaneous tools for doing common tasks. This includes shader and program compilation, and so forth.
+
+The GL Utility library is distributed under the <a href="http://www.opensource.org/licenses/MIT">MIT License</a>.
+
+Most of these functions interact with OpenGL directly. Therefore, they require an active OpenGL context. They also use GL Load to get to OpenGL, so they need it to have been initialized as well.
+**/
+
+/**
+\defgroup module_glutil_program Program Compilation/Linking
+
+\brief Helper functions for shader and program compiling and linking.
+
+\ref module_glload "GL Load" must have been successfully initialized for these functions to work.
+
+\ingroup module_glutil
+**/
+
+/**
+\defgroup module_glutil_debug Debug Output
+
+\brief Helper function for registering a function to handle ARB_debug_output.
+
+\ingroup module_glutil
+**/
+
+/**
+\defgroup module_glutil_wndpos Window Positioning
+
+\brief Helper function for positioning a window, based on the desktop size and the window's size.
+
+\note GLFW lacks the ability to get the window's actual size. The size you get back is always the size of the \em client area, not the whole window. As such, if you use this function to anchor the window to the right or bottom of the desktop, the window will be partially off-screen.
+
+\ingroup module_glutil
+**/
+
+/**
+\defgroup module_glutil_poles Mouse Poles
+
+\brief Objects that allow mouse-based control over the position and orientation of objects and the camera.
+
+A "Pole" is a class that allows mouse-based control over an object's orientation, via clicking and dragging.
+
+In order to be platform-agnostic, the Pole classes are not dependent on input from any one windowing system. Instead, they rely on external code to provide input. When the user clicks the mouse, external code must detect this in whatever way it sees fit and translate it for the Pole class.
+
+All Pole classes have 4 input functions: MouseClick, MouseMove, MouseWheel, and CharPress. The user should call these to provide input to the Poles.
+
+MouseClick must be called when a mouse button is pressed or released; it should not be called when the button is merely held. It should also be given the modifier keys that are currenlty being held down at the time of the pressing/releasing.
+
+MouseMove should be called anytime the mouse is moved, though they will usually only do something useful when the action button is down. MouseWheel should be called when the mouse wheel is touched. CharPress should be called when a keyboard character is entered. It should only be called for presses; releases are irrelevant.
+
+When a Pole is created, it is given a specific mouse button to listen for and respond to. This is the button that the pole in question uses for all of its mouse-based controls.
+
+\ingroup module_glutil
+**/
+
+/**
+\defgroup module_glutil_matrixstack Matrix Stack
+
+\brief Class and utility classes for matrix stacks.
+
+A common task in OpenGL programs is to have a stack of transforms. This is useful for hierarchial rendering and for traversing a scene graph. Indeed, OpenGL before 3.1's removal of old features had matrix stacks built in.
+
+Since it is a very useful feature, the GL Util library provides the MatrixStack class. It also provides the PushStack class for RAII-style pushing and poping operations.
+
+\ingroup module_glutil
+**/
+
+
+/**
+\defgroup module_glutil_exceptions Utility Exceptions
+
+\ingroup module_glutil
+**/

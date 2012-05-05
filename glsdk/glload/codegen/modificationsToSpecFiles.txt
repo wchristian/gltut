@@ -1,0 +1,4 @@
+gl.spec
+
+- glTexImage3D was incorrectly marked deprecated. This was removed in our versions.
+
