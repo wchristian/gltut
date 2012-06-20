@@ -2,7 +2,8 @@ use strictures;
 
 package tut1;
 
-use OpenGL qw(
+use lib '../framework';
+use OpenGL::Debug qw(
   GL_COLOR_BUFFER_BIT GL_ARRAY_BUFFER GL_FLOAT GL_FALSE GL_TRIANGLES
   GL_VERTEX_SHADER  GL_FRAGMENT_SHADER
   glCreateShaderObjectARB
@@ -13,7 +14,7 @@ use OpenGL qw(
   glCreateProgramObjectARB
   glAttachObjectARB
   glLinkProgramARB
-  glGetProgramivARB_p
+  glGetProgramiv_p
   glDetachObjectARB
   glDeleteObjectARB
   GL_STATIC_DRAW
@@ -195,7 +196,7 @@ sub CreateProgram {
 
     glLinkProgramARB( $program );
 
-    my $status = glGetProgramivARB_p( $program, GL_LINK_STATUS );
+    my $status = glGetProgramiv_p( $program, GL_LINK_STATUS );
     if ( $status == GL_FALSE ) {
         my $stat = glGetInfoLogARB_p( $program );
         die "Shader link log: $stat" if $stat;

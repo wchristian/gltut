@@ -2,7 +2,8 @@ use strictures;
 
 package vertCalcOffset;
 
-use OpenGL qw(
+use lib '../framework';
+use OpenGL::Debug qw(
   GL_COLOR_BUFFER_BIT GL_ARRAY_BUFFER GL_FLOAT GL_FALSE GL_TRIANGLES
   GL_VERTEX_SHADER  GL_FRAGMENT_SHADER
   GL_STATIC_DRAW

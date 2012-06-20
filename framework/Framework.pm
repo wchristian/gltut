@@ -4,7 +4,7 @@ package Framework;
 
 use 5.010;
 
-use OpenGL qw(
+use OpenGL::Debug qw(
   glutInit
   GLUT_DOUBLE  GLUT_ALPHA  GLUT_DEPTH  GLUT_STENCIL
   glutInitDisplayMode  glutInitWindowSize  glutInitWindowPosition  glutCreateWindow
@@ -32,7 +32,7 @@ use OpenGL qw(
   glCreateProgramObjectARB
   glAttachShader
   glLinkProgramARB
-  glGetProgramivARB_p
+  glGetProgramiv_p
   glGetInfoLogARB_p
   glDetachObjectARB
 );
@@ -73,7 +73,7 @@ sub CreateProgram {
 
     glLinkProgramARB( $program );
 
-    my $status = glGetProgramivARB_p( $program, GL_LINK_STATUS );
+    my $status = glGetProgramiv_p( $program, GL_LINK_STATUS );
     if ( $status == GL_FALSE ) {
         my $stat = glGetInfoLogARB_p( $program );
         die "Shader link log: $stat" if $stat;
