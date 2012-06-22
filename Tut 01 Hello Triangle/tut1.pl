@@ -46,7 +46,7 @@ use lib '../framework';
 
 with 'Framework';
 
-has $_ => ( is => 'rw' ) for qw( vao theProgram positionBufferObject );
+has theProgram => ( is => 'rw' );
 
 has strVertexShader => (
     is      => 'ro',
@@ -88,79 +88,11 @@ has vertexPositions => (
     }
 );
 
+has vao                  => ( is => 'rw' );
+has positionBufferObject => ( is => 'rw' );
+
 __PACKAGE__->new->main;
 exit;
-
-sub display {
-    my ( $self ) = @_;
-
-    glClearColor( 0, 0, 0, 0 );
-    glClear( GL_COLOR_BUFFER_BIT );
-
-    glUseProgramObjectARB( $self->theProgram );
-
-    glBindBufferARB( GL_ARRAY_BUFFER, $self->positionBufferObject );
-    glEnableVertexAttribArrayARB( 0 );
-    glVertexAttribPointerARB_c( 0, 4, GL_FLOAT, GL_FALSE, 0, 0 );
-
-    glDrawArrays( GL_TRIANGLES, 0, 3 );
-
-    glDisableVertexAttribArrayARB( 0 );
-    glUseProgramObjectARB( 0 );
-
-    glutSwapBuffers();
-
-    return;
-}
-
-sub defaults {
-    my ( $self, $displayMode, $width, $height ) = @_;
-    return $displayMode;
-}
-
-sub init {
-    my ( $self ) = @_;
-
-    $self->InitializeProgram;
-    $self->InitializeVertexBuffer;
-
-    $self->vao( glGenVertexArrays_p( 1 ) );
-    glBindVertexArray( $self->vao );
-
-    return;
-}
-
-sub InitializeProgram {
-    my ( $self ) = @_;
-    my @shaderList;
-
-    push @shaderList, $self->CreateShader( GL_VERTEX_SHADER,   $self->strVertexShader );
-    push @shaderList, $self->CreateShader( GL_FRAGMENT_SHADER, $self->strFragmentShader );
-
-    my $theProgram = $self->CreateProgram( @shaderList );
-    $self->theProgram( $theProgram );
-
-    glDeleteShader( $_ ) for @shaderList;
-
-    return;
-}
-
-sub InitializeVertexBuffer {
-    my ( $self ) = @_;
-
-    my $positionBufferObject = glGenBuffersARB_p( 1 );
-    $self->positionBufferObject( $positionBufferObject );
-
-=head1 insufficient documentation
-    glBufferDataARB_c
-=cut
-
-    glBindBufferARB( GL_ARRAY_BUFFER, $self->positionBufferObject );
-    glBufferDataARB_p( GL_ARRAY_BUFFER, $self->vertexPositions, GL_STATIC_DRAW );
-    glBindBufferARB( GL_ARRAY_BUFFER, 0 );
-
-    return;
-}
 
 sub CreateShader {
     my ( $self, $eShaderType, $strShaderFile ) = @_;
@@ -207,6 +139,72 @@ sub CreateProgram {
     return $program;
 }
 
+sub InitializeProgram {
+    my ( $self ) = @_;
+    my @shaderList;
+
+    push @shaderList, $self->CreateShader( GL_VERTEX_SHADER,   $self->strVertexShader );
+    push @shaderList, $self->CreateShader( GL_FRAGMENT_SHADER, $self->strFragmentShader );
+
+    my $theProgram = $self->CreateProgram( @shaderList );
+    $self->theProgram( $theProgram );
+
+    glDeleteShader( $_ ) for @shaderList;
+
+    return;
+}
+
+sub InitializeVertexBuffer {
+    my ( $self ) = @_;
+
+    my $positionBufferObject = glGenBuffersARB_p( 1 );
+    $self->positionBufferObject( $positionBufferObject );
+
+=head1 insufficient documentation
+    glBufferDataARB_c
+=cut
+
+    glBindBufferARB( GL_ARRAY_BUFFER, $self->positionBufferObject );
+    glBufferDataARB_p( GL_ARRAY_BUFFER, $self->vertexPositions, GL_STATIC_DRAW );
+    glBindBufferARB( GL_ARRAY_BUFFER, 0 );
+
+    return;
+}
+
+sub init {
+    my ( $self ) = @_;
+
+    $self->InitializeProgram;
+    $self->InitializeVertexBuffer;
+
+    $self->vao( glGenVertexArrays_p( 1 ) );
+    glBindVertexArray( $self->vao );
+
+    return;
+}
+
+sub display {
+    my ( $self ) = @_;
+
+    glClearColor( 0, 0, 0, 0 );
+    glClear( GL_COLOR_BUFFER_BIT );
+
+    glUseProgramObjectARB( $self->theProgram );
+
+    glBindBufferARB( GL_ARRAY_BUFFER, $self->positionBufferObject );
+    glEnableVertexAttribArrayARB( 0 );
+    glVertexAttribPointerARB_c( 0, 4, GL_FLOAT, GL_FALSE, 0, 0 );
+
+    glDrawArrays( GL_TRIANGLES, 0, 3 );
+
+    glDisableVertexAttribArrayARB( 0 );
+    glUseProgramObjectARB( 0 );
+
+    glutSwapBuffers();
+
+    return;
+}
+
 sub reshape {
     my ( $self, $w, $h ) = @_;
     glViewport( 0, 0, $w, $h );
@@ -219,4 +217,9 @@ sub keyboard {
     glutLeaveMainLoop() if $key == 27;
 
     return;
+}
+
+sub defaults {
+    my ( $self, $displayMode, $width, $height ) = @_;
+    return $displayMode;
 }

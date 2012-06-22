@@ -36,7 +36,7 @@ use lib '../framework';
 
 with 'Framework';
 
-has $_ => ( is => 'rw' ) for qw( vao theProgram positionBufferObject offsetLocation );
+has $_ => ( is => 'rw' ) for qw( theProgram offsetLocation );
 
 has vertexPositions => (
 	is      => 'ro',
@@ -50,69 +50,10 @@ has vertexPositions => (
 	}
 );
 
+has $_ => ( is => 'rw' ) for qw( positionBufferObject vao );
+
 __PACKAGE__->new->main;
 exit;
-
-sub display {
-	my ( $self ) = @_;
-
-	my ( $fXOffset, $fYOffset ) = ( 0, 0 );
-	$self->ComputePositionOffsets( \$fXOffset, \$fYOffset );
-
-	glClearColor( 0, 0, 0, 0 );
-	glClear( GL_COLOR_BUFFER_BIT );
-
-	glUseProgramObjectARB( $self->theProgram );
-
-	glUniform2fARB( $self->offsetLocation, $fXOffset, $fYOffset );
-
-	glBindBufferARB( GL_ARRAY_BUFFER, $self->positionBufferObject );
-	glEnableVertexAttribArrayARB( 0 );
-	glVertexAttribPointerARB_c( 0, 4, GL_FLOAT, GL_FALSE, 0, 0 );
-
-	glDrawArrays( GL_TRIANGLES, 0, 3 );
-
-	glDisableVertexAttribArrayARB( 0 );
-	glUseProgramObjectARB( 0 );
-
-	glutSwapBuffers();
-	glutPostRedisplay();
-
-	return;
-}
-
-sub ComputePositionOffsets {
-	my ( $self, $fXOffset, $fYOffset ) = @_;
-
-	my $fLoopDuration = 5;
-	my $fScale        = 3.14159 * 2.0 / $fLoopDuration;
-
-	my $fElapsedTime = glutGet( GLUT_ELAPSED_TIME ) / 1000;
-
-	my $fCurrTimeThroughLoop = fmod( $fElapsedTime, $fLoopDuration );
-
-	${$fXOffset} = cos( $fCurrTimeThroughLoop * $fScale ) * 0.5;
-	${$fYOffset} = sin( $fCurrTimeThroughLoop * $fScale ) * 0.5;
-
-	return;
-}
-
-sub defaults {
-	my ( $self, $displayMode, $width, $height ) = @_;
-	return $displayMode;
-}
-
-sub init {
-	my ( $self ) = @_;
-
-	$self->InitializeProgram;
-	$self->InitializeVertexBuffer;
-
-	$self->vao( glGenVertexArrays_p( 1 ) );
-	glBindVertexArray( $self->vao );
-
-	return;
-}
 
 sub InitializeProgram {
 	my ( $self ) = @_;
@@ -144,6 +85,62 @@ sub InitializeVertexBuffer {
 	return;
 }
 
+sub init {
+	my ( $self ) = @_;
+
+	$self->InitializeProgram;
+	$self->InitializeVertexBuffer;
+
+	$self->vao( glGenVertexArrays_p( 1 ) );
+	glBindVertexArray( $self->vao );
+
+	return;
+}
+
+sub ComputePositionOffsets {
+	my ( $self, $fXOffset, $fYOffset ) = @_;
+
+	my $fLoopDuration = 5;
+	my $fScale        = 3.14159 * 2.0 / $fLoopDuration;
+
+	my $fElapsedTime = glutGet( GLUT_ELAPSED_TIME ) / 1000;
+
+	my $fCurrTimeThroughLoop = fmod( $fElapsedTime, $fLoopDuration );
+
+	${$fXOffset} = cos( $fCurrTimeThroughLoop * $fScale ) * 0.5;
+	${$fYOffset} = sin( $fCurrTimeThroughLoop * $fScale ) * 0.5;
+
+	return;
+}
+
+sub display {
+	my ( $self ) = @_;
+
+	my ( $fXOffset, $fYOffset ) = ( 0, 0 );
+	$self->ComputePositionOffsets( \$fXOffset, \$fYOffset );
+
+	glClearColor( 0, 0, 0, 0 );
+	glClear( GL_COLOR_BUFFER_BIT );
+
+	glUseProgramObjectARB( $self->theProgram );
+
+	glUniform2fARB( $self->offsetLocation, $fXOffset, $fYOffset );
+
+	glBindBufferARB( GL_ARRAY_BUFFER, $self->positionBufferObject );
+	glEnableVertexAttribArrayARB( 0 );
+	glVertexAttribPointerARB_c( 0, 4, GL_FLOAT, GL_FALSE, 0, 0 );
+
+	glDrawArrays( GL_TRIANGLES, 0, 3 );
+
+	glDisableVertexAttribArrayARB( 0 );
+	glUseProgramObjectARB( 0 );
+
+	glutSwapBuffers();
+	glutPostRedisplay();
+
+	return;
+}
+
 sub reshape {
 	my ( $self, $w, $h ) = @_;
 	glViewport( 0, 0, $w, $h );
@@ -156,4 +153,9 @@ sub keyboard {
 	glutLeaveMainLoop() if $key == 27;
 
 	return;
+}
+
+sub defaults {
+	my ( $self, $displayMode, $width, $height ) = @_;
+	return $displayMode;
 }

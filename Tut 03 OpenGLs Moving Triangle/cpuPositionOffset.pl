@@ -35,7 +35,7 @@ use lib '../framework';
 
 with 'Framework';
 
-has $_ => ( is => 'rw' ) for qw( vao theProgram positionBufferObject );
+has theProgram => ( is => 'rw' );
 
 has vertexPositions => (
 	is      => 'ro',
@@ -49,32 +49,47 @@ has vertexPositions => (
 	}
 );
 
+has $_ => ( is => 'rw' ) for qw( positionBufferObject vao );
+
 __PACKAGE__->new->main;
 exit;
 
-sub display {
+sub InitializeProgram {
+	my ( $self ) = @_;
+	my @shaderList;
+
+	push @shaderList, $self->LoadShader( GL_VERTEX_SHADER,   "standard.vert" );
+	push @shaderList, $self->LoadShader( GL_FRAGMENT_SHADER, "standard.frag" );
+
+	$self->theProgram( $self->CreateProgram( @shaderList ) );
+
+	return;
+}
+
+sub InitializeVertexBuffer {
 	my ( $self ) = @_;
 
-	my ( $fXOffset, $fYOffset ) = ( 0, 0 );
-	$self->ComputePositionOffsets( \$fXOffset, \$fYOffset );
-	$self->AdjustVertexData( $fXOffset, $fYOffset );
+	$self->positionBufferObject( glGenBuffersARB_p( 1 ) );
 
-	glClearColor( 0, 0, 0, 0 );
-	glClear( GL_COLOR_BUFFER_BIT );
-
-	glUseProgramObjectARB( $self->theProgram );
+=head1 insufficient documentation
+	glBufferDataARB_c
+=cut
 
 	glBindBufferARB( GL_ARRAY_BUFFER, $self->positionBufferObject );
-	glEnableVertexAttribArrayARB( 0 );
-	glVertexAttribPointerARB_c( 0, 4, GL_FLOAT, GL_FALSE, 0, 0 );
+	glBufferDataARB_p( GL_ARRAY_BUFFER, $self->vertexPositions, GL_STREAM_DRAW );
+	glBindBufferARB( GL_ARRAY_BUFFER, 0 );
 
-	glDrawArrays( GL_TRIANGLES, 0, 3 );
+	return;
+}
 
-	glDisableVertexAttribArrayARB( 0 );
-	glUseProgramObjectARB( 0 );
+sub init {
+	my ( $self ) = @_;
 
-	glutSwapBuffers();
-	glutPostRedisplay();
+	$self->InitializeProgram;
+	$self->InitializeVertexBuffer;
+
+	$self->vao( glGenVertexArrays_p( 1 ) );
+	glBindVertexArray( $self->vao );
 
 	return;
 }
@@ -114,47 +129,29 @@ sub AdjustVertexData {
 	return;
 }
 
-sub defaults {
-	my ( $self, $displayMode, $width, $height ) = @_;
-	return $displayMode;
-}
-
-sub init {
+sub display {
 	my ( $self ) = @_;
 
-	$self->InitializeProgram;
-	$self->InitializeVertexBuffer;
+	my ( $fXOffset, $fYOffset ) = ( 0, 0 );
+	$self->ComputePositionOffsets( \$fXOffset, \$fYOffset );
+	$self->AdjustVertexData( $fXOffset, $fYOffset );
 
-	$self->vao( glGenVertexArrays_p( 1 ) );
-	glBindVertexArray( $self->vao );
+	glClearColor( 0, 0, 0, 0 );
+	glClear( GL_COLOR_BUFFER_BIT );
 
-	return;
-}
-
-sub InitializeProgram {
-	my ( $self ) = @_;
-	my @shaderList;
-
-	push @shaderList, $self->LoadShader( GL_VERTEX_SHADER,   "standard.vert" );
-	push @shaderList, $self->LoadShader( GL_FRAGMENT_SHADER, "standard.frag" );
-
-	$self->theProgram( $self->CreateProgram( @shaderList ) );
-
-	return;
-}
-
-sub InitializeVertexBuffer {
-	my ( $self ) = @_;
-
-	$self->positionBufferObject( glGenBuffersARB_p( 1 ) );
-
-=head1 insufficient documentation
-	glBufferDataARB_c
-=cut
+	glUseProgramObjectARB( $self->theProgram );
 
 	glBindBufferARB( GL_ARRAY_BUFFER, $self->positionBufferObject );
-	glBufferDataARB_p( GL_ARRAY_BUFFER, $self->vertexPositions, GL_STREAM_DRAW );
-	glBindBufferARB( GL_ARRAY_BUFFER, 0 );
+	glEnableVertexAttribArrayARB( 0 );
+	glVertexAttribPointerARB_c( 0, 4, GL_FLOAT, GL_FALSE, 0, 0 );
+
+	glDrawArrays( GL_TRIANGLES, 0, 3 );
+
+	glDisableVertexAttribArrayARB( 0 );
+	glUseProgramObjectARB( 0 );
+
+	glutSwapBuffers();
+	glutPostRedisplay();
 
 	return;
 }
@@ -171,4 +168,9 @@ sub keyboard {
 	glutLeaveMainLoop() if $key == 27;
 
 	return;
+}
+
+sub defaults {
+	my ( $self, $displayMode, $width, $height ) = @_;
+	return $displayMode;
 }

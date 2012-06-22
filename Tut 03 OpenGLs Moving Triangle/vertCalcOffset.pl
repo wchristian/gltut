@@ -35,7 +35,7 @@ use lib '../framework';
 
 with 'Framework';
 
-has $_ => ( is => 'rw' ) for qw( vao theProgram positionBufferObject elapsedTimeUniform );
+has $_ => ( is => 'rw' ) for qw( theProgram elapsedTimeUniform );
 
 has vertexPositions => (
 	is      => 'ro',
@@ -49,50 +49,10 @@ has vertexPositions => (
 	}
 );
 
+has $_ => ( is => 'rw' ) for qw( positionBufferObject vao );
+
 __PACKAGE__->new->main;
 exit;
-
-sub display {
-	my ( $self ) = @_;
-
-	glClearColor( 0, 0, 0, 0 );
-	glClear( GL_COLOR_BUFFER_BIT );
-
-	glUseProgramObjectARB( $self->theProgram );
-
-	glUniform1fARB($self->elapsedTimeUniform, glutGet(GLUT_ELAPSED_TIME) / 1000);
-
-	glBindBufferARB( GL_ARRAY_BUFFER, $self->positionBufferObject );
-	glEnableVertexAttribArrayARB( 0 );
-	glVertexAttribPointerARB_c( 0, 4, GL_FLOAT, GL_FALSE, 0, 0 );
-
-	glDrawArrays( GL_TRIANGLES, 0, 3 );
-
-	glDisableVertexAttribArrayARB( 0 );
-	glUseProgramObjectARB( 0 );
-
-	glutSwapBuffers();
-	glutPostRedisplay();
-
-	return;
-}
-
-sub defaults {
-	my ( $self, $displayMode, $width, $height ) = @_;
-	return $displayMode;
-}
-
-sub init {
-	my ( $self ) = @_;
-
-	$self->InitializeProgram;
-	$self->InitializeVertexBuffer;
-
-	$self->vao( glGenVertexArrays_p( 1 ) );
-	glBindVertexArray( $self->vao );
-
-	return;
-}
 
 sub InitializeProgram {
 	my ( $self ) = @_;
@@ -129,6 +89,43 @@ sub InitializeVertexBuffer {
 	return;
 }
 
+sub init {
+	my ( $self ) = @_;
+
+	$self->InitializeProgram;
+	$self->InitializeVertexBuffer;
+
+	$self->vao( glGenVertexArrays_p( 1 ) );
+	glBindVertexArray( $self->vao );
+
+	return;
+}
+
+sub display {
+	my ( $self ) = @_;
+
+	glClearColor( 0, 0, 0, 0 );
+	glClear( GL_COLOR_BUFFER_BIT );
+
+	glUseProgramObjectARB( $self->theProgram );
+
+	glUniform1fARB($self->elapsedTimeUniform, glutGet(GLUT_ELAPSED_TIME) / 1000);
+
+	glBindBufferARB( GL_ARRAY_BUFFER, $self->positionBufferObject );
+	glEnableVertexAttribArrayARB( 0 );
+	glVertexAttribPointerARB_c( 0, 4, GL_FLOAT, GL_FALSE, 0, 0 );
+
+	glDrawArrays( GL_TRIANGLES, 0, 3 );
+
+	glDisableVertexAttribArrayARB( 0 );
+	glUseProgramObjectARB( 0 );
+
+	glutSwapBuffers();
+	glutPostRedisplay();
+
+	return;
+}
+
 sub reshape {
 	my ( $self, $w, $h ) = @_;
 	glViewport( 0, 0, $w, $h );
@@ -141,4 +138,9 @@ sub keyboard {
 	glutLeaveMainLoop() if $key == 27;
 
 	return;
+}
+
+sub defaults {
+	my ( $self, $displayMode, $width, $height ) = @_;
+	return $displayMode;
 }
