@@ -7,6 +7,8 @@ use OpenGL qw( GL_NO_ERROR glGetError gluErrorString );
 use Carp 'confess';
 use Sub::Name 'subname';
 
+my $is_in_Begin;
+
 sub import {
     my ( $class, @imports ) = @_;
 
@@ -37,7 +39,7 @@ sub make_wrapped {
     my $code = \&{"OpenGL::$function"};
 
     return subname $function, sub {
-        my $entry_error = glGetError();
+        my $entry_error = ( !$is_in_Begin ) ? glGetError() : 0;
         confess formatted_error( "entry", $entry_error ) if $entry_error != GL_NO_ERROR;
 
         my $wantarray = wantarray;
@@ -52,8 +54,10 @@ sub make_wrapped {
         else {
             $code->( @_ );
         }
+        $is_in_Begin = 1 if $function eq 'glBegin';
+        $is_in_Begin = 0 if $function eq 'glEnd';
 
-        my $exit_error = glGetError();
+        my $exit_error = ( !$is_in_Begin ) ? glGetError() : 0;
         confess formatted_error( "exit", $exit_error ) if $exit_error != GL_NO_ERROR;
 
         return $wantarray ? @ret : $ret[0];
