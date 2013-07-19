@@ -6,6 +6,7 @@ use Sub::Install 'install_sub';
 use OpenGL qw( GL_NO_ERROR glGetError gluErrorString );
 use Carp 'confess';
 use Sub::Name 'subname';
+use Carp::Always;
 
 my $is_in_Begin;
 
