@@ -22,7 +22,7 @@ sub import {
 
     my %all_consts = map { $_ => 1 } map { @{ $OpenGL::EXPORT_TAGS{$_} } } grep { /const/ } keys %OpenGL::EXPORT_TAGS;
 
-    my $glut_init_skips = "glut(MainLoop|Init(|DisplayMode|Context(Version|Profile|Flags)|Window(Size|Position)))";
+    my $glut_init_skips = "glut(MainLoop|Init(|DisplayMode|Context(Version|Profile|Flags)|Window(Size|Position))|SetOption)";
 
     my @non_debugs = grep { $all_consts{$_} or /^($glut_init_skips|glutCreateWindow)$/ } keys %uniq_imports;
     my @functions = grep { !$all_consts{$_} and !/^($glut_init_skips|glutCreateWindow)$/ } keys %uniq_imports;
